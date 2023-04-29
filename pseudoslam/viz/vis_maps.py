@@ -37,7 +37,7 @@ def draw_map(file_name, json_path, save_path, max_size):
     # Save map
     if not os.path.exists(save_path):
         os.mkdir(save_path)
-    cv2.imwrite(save_path + "/" + file_name + '.png', background)
+    cv2.imwrite(save_path + "/" + file_name + '.jpg', background)    
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Visualize the subset of maps in .png.")
