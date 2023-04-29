@@ -25,7 +25,7 @@ def draw_map(file_name, json_path, save_path, max_size):
 
     # Create the background
     background = np.zeros((max_size[1], max_size[0]), dtype=np.uint8)
-    background_color = 128
+    background_color = 255
     background[:, :] = background_color
 
     # Place the contour onto the background
