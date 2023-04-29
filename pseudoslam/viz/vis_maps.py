@@ -58,7 +58,23 @@ if __name__ == '__main__':
     print("---------------------------------------------------------------------")
 
     map_ids = np.loadtxt(map_file, str)
-    max_size = (4000, 4000)
+    max_width = 0
+    max_height = 0
+
+    for map_id in map_ids:
+        with open(json_path + '/' + map_id + '.json') as json_file:
+            json_data = json.load(json_file)
+            verts = (np.array(json_data['verts']) * meter2pixel).astype(int)
+        x_max, x_min, y_max, y_min = np.max(verts[:, 0]), np.min(verts[:, 0]), np.max(verts[:, 1]), np.min(verts[:, 1])
+        width = x_max - x_min + border_pad * 2
+        height = y_max - y_min + border_pad * 2
+        if width > max_width:
+            max_width = width
+        if height > max_height:
+            max_height = height
+
+    max_size = (max_width, max_height)
+
 
     for map_id in map_ids:
         draw_map(map_id, json_path, save_path, max_size)
