@@ -7,7 +7,7 @@ import numpy as np
 meter2pixel = 100
 border_pad = 25
 
-def draw_map(file_name, json_path, save_path):
+def draw_map(file_name, json_path, save_path, max_size):
     print("Processing ", file_name)
 
     with open(json_path + '/' + file_name + '.json') as json_file:
@@ -23,10 +23,21 @@ def draw_map(file_name, json_path, save_path):
     verts[:, 1] = verts[:, 1] - y_min + border_pad
     cv2.drawContours(cnt_map, [verts], 0, 255, -1)
 
+    # Create the background
+    background = np.zeros((max_size[1], max_size[0]), dtype=np.uint8)
+    background_color = 128
+    background[:, :] = background_color
+
+    # Place the contour onto the background
+    contour_size = cnt_map.shape
+    x_offset = int((max_size[0] - contour_size[1]) / 2)
+    y_offset = int((max_size[1] - contour_size[0]) / 2)
+    background[y_offset:y_offset+contour_size[0], x_offset:x_offset+contour_size[1]] = cnt_map
+
     # Save map
     if not os.path.exists(save_path):
         os.mkdir(save_path)
-    cv2.imwrite(save_path + "/" + file_name + '.png', cnt_map)
+    cv2.imwrite(save_path + "/" + file_name + '.png', background)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Visualize the subset of maps in .png.")
@@ -47,8 +58,9 @@ if __name__ == '__main__':
     print("---------------------------------------------------------------------")
 
     map_ids = np.loadtxt(map_file, str)
+    max_size = (4000, 4000)
 
     for map_id in map_ids:
-        draw_map(map_id, json_path, save_path)
+        draw_map(map_id, json_path, save_path, max_size)
 
     print("Successfully draw the maps into {}.".format(save_path))
