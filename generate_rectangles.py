@@ -3,63 +3,6 @@ import json
 import random
 from PIL import Image, ImageDraw
 
-def is_rectangle_intersecting(rectangle1, rectangle2):
-    """
-    Check if two rectangles intersect.
-    """
-    x1, y1 = rectangle1[0]
-    x2, y2 = rectangle1[2]
-    x3, y3 = rectangle2[0]
-    x4, y4 = rectangle2[2]
-
-    return not (x2 < x3 or x4 < x1 or y2 < y3 or y4 < y1)
-
-def get_intersection(rectangle1, rectangle2):
-    """
-    Get the intersection points of two rectangles.
-    """
-    x1, y1 = rectangle1[0]
-    x2, y2 = rectangle1[2]
-    x3, y3 = rectangle2[0]
-    x4, y4 = rectangle2[2]
-
-    x_left = max(x1, x3)
-    x_right = min(x2, x4)
-    y_bottom = max(y1, y3)
-    y_top = min(y2, y4)
-
-    return [(x_left, y_bottom), (x_right, y_top)]
-
-
-def is_vertex_contained(vertex, rectangle):
-    """
-    Check if a vertex is contained in a rectangle.
-    """
-    x, y = vertex
-    x1, y1 = rectangle[0]
-    x2, y2 = rectangle[2]
-    return x1 <= x <= x2 and y1 <= y <= y2
-
-def get_outer_points_and_intersections(rectangles):
-    points = []
-    if(len(rectangles) == 1):
-        points.append(rectangles[0])
-    else:
-        for i, rectangle in enumerate(rectangles):
-            for j, other_rectangle in enumerate(rectangles):
-                if j > i:
-                    if is_rectangle_intersecting(rectangle, other_rectangle):
-                        left, right = get_intersection(rectangle, other_rectangle)
-                        points.append(left)
-                        points.append(right)
-                if j != i:
-                    for vertex in rectangle:
-                        if not is_vertex_contained(vertex, other_rectangle):
-                            points.append(vertex)    
-    return points
-
-
-
 def generate_rect(image_size):
     rectangle_width = random.randint(3, image_size-2)
     rectangle_height = random.randint(3, image_size-2)
@@ -121,11 +64,7 @@ while generated_images < 50:
         draw.polygon(rectangle_verts, outline=(0, 0, 0), fill=(0, 0, 0))
         rectangles.append(rectangle_verts)
 
-    outerPoints = get_outer_points_and_intersections(rectangles)
-    if(generated_images<5):
-        print("rectangles:",rectangles)
-        print("outerPoints:",outerPoints)
-        print("-------------------")
+    print(rectangles)    
 
     filename = os.urandom(16).hex()
     pngDir = os.path.join(png_output_dir, f"{filename}.png")
@@ -134,7 +73,7 @@ while generated_images < 50:
 
     img.save(pngDir)
 
-    json_data = {"verts": outerPoints}
+    json_data = {"verts": rectangle_verts}
     with open(jsonDir, "w") as f:
         json.dump(json_data, f)
 
