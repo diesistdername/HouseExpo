@@ -64,8 +64,35 @@ while generated_images < 50:
         draw.polygon(rectangle_verts, outline=(0, 0, 0), fill=(0, 0, 0))
         rectangles.append(rectangle_verts)
 
-    print(rectangles)    
+    #print(rectangles)   
+    points = []
+    if(generated_images < 1):
+        for x in range(0, image_size-1):
+            for y in range(0, image_size-1):
+                coordinates = [(x, y), (x+1, y), (x, y+1),  (x+1, y+1)] #topleft, topright, bottomleft, bottomright
+                
+                pattern = [img.getpixel(coordinates[0]) == (0,0,0),
+                        img.getpixel(coordinates[1]) == (0,0,0),
+                        img.getpixel(coordinates[2]) == (0,0,0),
+                        img.getpixel(coordinates[3]) == (0,0,0)]
 
+                patterns =         [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1], #b in w 
+                                    [1,1,1,0], [1,0,1,1], [1,1,0,1],  [0,1,1,1]] #w in b    
+        
+                coordinateIndex  = [0, 1, 2, 3, #b in w 
+                                    0, 1, 2, 3] #w in b           
+
+                print("coordinates: ", coordinates," pattern: ", pattern)
+
+                for i, validPattern in enumerate(patterns):
+                    #print("checking validy vs: ", validPattern)
+                    if(pattern == validPattern):
+                        print("is valid pattern nr.: ", i, " taking coordinateIndex: ", coordinateIndex[i], " taking coordinates: ", coordinates[coordinateIndex[i]])
+                        points.append(coordinates[coordinateIndex[i]])
+
+                
+            
+    print(points)
     filename = os.urandom(16).hex()
     pngDir = os.path.join(png_output_dir, f"{filename}.png")
     jsonDir = os.path.join(json_output_dir, f"{filename}.json")
@@ -73,7 +100,7 @@ while generated_images < 50:
 
     img.save(pngDir)
 
-    json_data = {"verts": rectangle_verts}
+    json_data = {"verts": points}
     with open(jsonDir, "w") as f:
         json.dump(json_data, f)
 
