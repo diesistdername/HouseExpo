@@ -4,8 +4,10 @@ import random
 from PIL import Image, ImageDraw
 
 def generate_rect(image_size):
-    rectangle_width = random.randint(3, image_size-2)
-    rectangle_height = random.randint(3, image_size-2)
+    min_size = round(image_size*0.2)
+    max_size = round(image_size*0.8)
+    rectangle_width = random.randint(min_size, max_size)
+    rectangle_height = random.randint(min_size, max_size)
     rectangle_x1 = random.randint(1, image_size-rectangle_width-1)
     rectangle_y1 = random.randint(1, image_size-rectangle_height-1)
     rectangle_x2 = rectangle_x1 + rectangle_width
@@ -17,9 +19,11 @@ def generate_rect(image_size):
     return rectangle_verts
 
 def has_overlap(verts1, verts2):
+    min_overlap = 1
+    max_overlap = image_size
     for v1 in verts1:
         for v2 in verts2:
-            if v1[0] <= v2[0] <= v1[0] + 1 and v1[1] <= v2[1] <= v1[1] + 1:
+            if (v1[0] - min_overlap <= v2[0] <= v1[0] + max_overlap) and (v1[1] - min_overlap <= v2[1] <= v1[1] + max_overlap):
                 return True
     return False
 
@@ -38,7 +42,8 @@ image_size = 30
 
 # Generate 50 PNG and JSON files
 generated_images = 0
-while generated_images < 50:
+max_points = 0
+while generated_images < 5000:
     # Generate random position and size for the rectangles
     num_rectangles = random.randint(1, 3)
     rectangles = []
@@ -64,9 +69,8 @@ while generated_images < 50:
         draw.polygon(rectangle_verts, outline=(0, 0, 0), fill=(0, 0, 0))
         rectangles.append(rectangle_verts)
 
-    #print(rectangles)   
     points = []
-    if(generated_images < 1):
+    if(True):
         for x in range(0, image_size-1):
             for y in range(0, image_size-1):
                 coordinates = [(x, y), (x+1, y), (x, y+1),  (x+1, y+1)] #topleft, topright, bottomleft, bottomright
@@ -82,17 +86,18 @@ while generated_images < 50:
                 coordinateIndex  = [0, 1, 2, 3, #b in w 
                                     0, 1, 2, 3] #w in b           
 
-                print("coordinates: ", coordinates," pattern: ", pattern)
-
                 for i, validPattern in enumerate(patterns):
-                    #print("checking validy vs: ", validPattern)
                     if(pattern == validPattern):
-                        print("is valid pattern nr.: ", i, " taking coordinateIndex: ", coordinateIndex[i], " taking coordinates: ", coordinates[coordinateIndex[i]])
+                        #print("is valid pattern nr.: ", i, " taking coordinateIndex: ", coordinateIndex[i], " taking coordinates: ", coordinates[coordinateIndex[i]])
                         points.append(coordinates[coordinateIndex[i]])
 
-                
+    #debug
+    #for p in points:
+    #    img.putpixel(p, (100, 0, 0))
+    if(len(points)>max_points):            
+        max_points = len(points)
+    
             
-    print(points)
     filename = os.urandom(16).hex()
     pngDir = os.path.join(png_output_dir, f"{filename}.png")
     jsonDir = os.path.join(json_output_dir, f"{filename}.json")
@@ -105,3 +110,5 @@ while generated_images < 50:
         json.dump(json_data, f)
 
     generated_images += 1
+
+print("max_points", max_points)
